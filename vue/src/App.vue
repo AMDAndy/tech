@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import {onBeforeMount, ref} from 'vue';
 import { helperNameMap } from '@vue/compiler-core';
 
 const merpRss = 'https://tech.lgbt/@solarmerps.rss';
@@ -9,13 +9,14 @@ const soffImage = ref('');
 onBeforeMount(async () => {
   const superGay = await fetch(merpRss).then(response => response.text())
     .then(str => new window.DOMParser().parseFromString(str, "text/xml"));
-  if (superGay.querySelector('image') && xmldoc.querySelector('image').querySelector('url')) {
-    soffImage.value = xmldoc.querySelector('image').querySelector('url').textContent;
+  if (superGay.querySelector('image') && superGay.querySelector('image').querySelector('url')) {
+    soffImage.value = superGay.querySelector('image').querySelector('url').textContent;
   }
   
-  shitPosts.value = superGay.querySelectorAll('item').map(gayPost => {
+  shitPosts.value = [...superGay.querySelectorAll('item')].map(gayPost => {
       const tempNode = document.createElement('div');
       tempNode.innerHTML = gayPost.querySelector('description').textContent;
+      console.log(tempNode);
       return tempNode.textContent;
     });
     return {shitPosts};
