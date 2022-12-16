@@ -5,19 +5,26 @@ import { helperNameMap } from '@vue/compiler-core';
 const merpRss = 'https://tech.lgbt/@solarmerps.rss';
 const shitPosts = ref({});
 const soffImage = ref('');
+const user = ref('');
 
 onBeforeMount(async () => {
   const superGay = await fetch(merpRss).then(response => response.text())
     .then(str => new window.DOMParser().parseFromString(str, "text/xml"));
   if (superGay.querySelector('image') && superGay.querySelector('image').querySelector('url')) {
     soffImage.value = superGay.querySelector('image').querySelector('url').textContent;
+    user.value = superGay.querySelector('channel>title').textContent;
   }
   
   shitPosts.value = [...superGay.querySelectorAll('item')].map(gayPost => {
       const tempNode = document.createElement('div');
+      const shitPost = {};
       tempNode.innerHTML = gayPost.querySelector('description').textContent;
-      console.log(tempNode);
-      return tempNode.textContent;
+      shitPost.content = tempNode.innerHTML;
+      const c = tempNode.textContent.toLowerCase();
+      shitPost.hasGay = ((c.includes('im') || c.includes("i'm")) && c.includes('gay')) || (!c.includes('not') && !c.includes('you') && c.includes('gay'));
+      // TODO: Change to none and set up timer.
+      shitPost.display = 'block';
+      return shitPost;
     });
     return {shitPosts};
 });
@@ -46,10 +53,21 @@ const messages = {
 </script>
 
 <template>
+  <section class="container">
+    <div class="row">
+      <div class="col">
+        <h1>{{user}}</h1>
+      </div>
+    </div>
+  </section>
   <div :style="{ backgroundImage: `url('${soffImage}')` }" class="container">
-    <section class="row row-col-3" v-for="gayPost in shitPosts">
-      <div class="card">
-        <h3 class="card-title">{{ gayPost }}</h3></div>
+    <section class="row row-cols-2 g-5">
+      <div v-for="gayPost in shitPosts" :class="gayPost.hasGay ? 'pretty-gay col' : 'less-gay col'"
+           :style="{display: gayPost.display}">
+        <div class="card p-3">
+          <h4 class="card-title" v-html="gayPost.content"></h4>
+        </div>
+      </div>
     </section>
   </div>
 </template>   
