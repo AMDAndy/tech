@@ -48,7 +48,8 @@ const messages = {
 <template>
   <div :style="{ backgroundImage: `url('${soffImage}')` }" class="container">
     <section class="row row-col-3" v-for="gayPost in shitPosts">
-      <div class="card">{{ gayPost }}</div>
+      <div class="card">
+        <h3 class="card-title">{{ gayPost }}</h3></div>
     </section>
   </div>
 </template>   

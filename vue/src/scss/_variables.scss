@@ -1632,3 +1632,9 @@ $kbd-bg:                            var(--#{$prefix}body-color) !default;
 $nested-kbd-font-weight:            null !default; // Deprecated in v5.2.0, removing in v6
 
 $pre-color:                         null !default;
+#app {
+  .card {
+    --bs-card-bg: rgba(255, 255, 255, .6);
+
+  }
+}
