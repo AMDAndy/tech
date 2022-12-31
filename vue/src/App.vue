@@ -6,6 +6,9 @@ const merpRss = 'https://tech.lgbt/@solarmerps.rss';
 const shitPosts = ref({});
 const soffImage = ref('');
 const user = ref('');
+const message = ref('');
+const paradox = ref(false);
+const gay = ref(false);
 
 onBeforeMount(async () => {
   const superGay = await fetch(merpRss).then(response => response.text())
@@ -23,7 +26,7 @@ onBeforeMount(async () => {
       const c = tempNode.textContent.toLowerCase();
       shitPost.hasGay = ((c.includes('im') || c.includes("i'm")) && c.includes('gay')) || (!c.includes('not') && !c.includes('you') && c.includes('gay'));
       // TODO: Change to none and set up timer.
-      shitPost.display = 'block';
+      shitPost.display = 'none';
       return shitPost;
     });
     return {shitPosts};
@@ -47,8 +50,61 @@ const messages = {
   ],
   paradox: [
     'Paradox detected. This statement is a lie.'
+  ],
+  gay: [
+    'User confirmed gay.'
   ]
 }
+
+// go through each item, analyze for gayness, increment gayness and analyzed counts.
+// delay between each item, update messaging as applicable.
+// when done, if no gayness is detected, show big error message.
+// if gayness is detected, show that gay was detected.
+
+// This is our timer. Wait for it to be done between each item.
+const timer = ms => new Promise(res => setTimeout(res, ms))
+
+const updateMessage = (count, gayCount) => {
+  let mess = '';
+  if (gayCount == 0) {
+    mess = messages.no.length >= count ? messages.no[count] : messages.no[messages.no.length - 1];
+  }
+  else {
+    if (messages.yes.length > gayCount) {
+      mess = messages.yes[gayCount - 1];
+    }
+    else {
+      mess = messages.yes[messages.yes.length - 1];
+    }
+  }
+  message.value = mess;
+}
+async function examinePosts () {
+  let gayCount = 0;
+  const posts = [...shitPosts.value];
+  for (let i = 0; i < posts.length; i++) {
+    const post = posts[i];
+    post.display = post.hasGay ? 'block' : 'none';
+    if (post.hasGay) {
+      // Increment gay. Comment out to test zero gay actions.
+      gayCount++;
+    }
+    updateMessage(i, gayCount);
+    await timer(500); // then the created Promise can be awaited
+  }
+  if (gayCount == 0) {
+    message.value = messages.paradox[0];
+    paradox.value = true;
+  }
+  else {
+    message.value = messages.gay[0];
+    gay.value = true;
+  }
+}
+
+
+// initial delay to run the thing.
+setTimeout(examinePosts, 500);
 
 </script>
 
@@ -60,7 +116,16 @@ const messages = {
       </div>
     </div>
   </section>
-  <div :style="{ backgroundImage: `url('${soffImage}')` }" class="container">
+  <div class="container">
+    <section v-if="paradox" class="row paradox">
+      <img src="/public/broken.jpg" alt="Zero amounts of gay detected. Something is very wrong here." />
+    </section>
+    <section v-if="gay" class="row gay">
+      <img src="/public/ghey.jpg" alt="Pretty gay ngl" />
+    </section>
+    <section class="row">
+      <div v-if="message" class="alert alert-success" role="alert">{{ message }}</div>
+    </section>
     <section class="row row-cols-2 g-5">
       <div v-for="gayPost in shitPosts" :class="gayPost.hasGay ? 'pretty-gay col' : 'less-gay col'"
            :style="{display: gayPost.display}">
