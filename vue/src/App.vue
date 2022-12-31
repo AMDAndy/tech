@@ -9,6 +9,7 @@ const user = ref('');
 const message = ref('');
 const paradox = ref(false);
 const gay = ref(false);
+const classe = ref('alert-warning');
 
 onBeforeMount(async () => {
   const superGay = await fetch(merpRss).then(response => response.text())
@@ -88,6 +89,7 @@ async function examinePosts () {
     if (post.hasGay) {
       // Increment gay. Comment out to test zero gay actions.
       gayCount++;
+      classe.value = 'alert-success';
     }
     updateMessage(i, gayCount);
     await timer(500); // then the created Promise can be awaited
@@ -95,10 +97,12 @@ async function examinePosts () {
   if (gayCount == 0) {
     message.value = messages.paradox[0];
     paradox.value = true;
+    classe.value = 'alert-error';
   }
   else {
     message.value = messages.gay[0];
     gay.value = true;
+    classe.value = 'alert-gay';
   }
 }
 
@@ -120,11 +124,8 @@ setTimeout(examinePosts, 500);
     <section v-if="paradox" class="row paradox">
       <img src="/public/broken.jpg" alt="Zero amounts of gay detected. Something is very wrong here." />
     </section>
-    <section v-if="gay" class="row gay">
-      <img src="/public/ghey.jpg" alt="Pretty gay ngl" />
-    </section>
     <section class="row">
-      <div v-if="message" class="alert alert-success" role="alert">{{ message }}</div>
+      <div v-if="message" class="alert" :class="classe" role="alert">{{ message }}</div>
     </section>
     <section class="row row-cols-2 g-5">
       <div v-for="gayPost in shitPosts" :class="gayPost.hasGay ? 'pretty-gay col' : 'less-gay col'"
